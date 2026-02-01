@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Song {
+  id           String   @id @default(uuid())
+  driveFileId  String   @unique
+  name         String
+  title        String?
+  artist       String?
+  album        String?
+  duration     Int?
+  mimeType     String
+  size         Int
+  thumbnailUrl String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastSyncedAt DateTime @default(now())
+
+  playlistSongs PlaylistSong[]
+
+  @@index([name])
+  @@index([artist])
+  @@index([album])
+}
+
+model Playlist {
+  id           String  @id @default(uuid())
+  name         String
+  description  String?
+  coverImageUrl String?
+  passwordHash String?
+  isPublic     Boolean @default(true)
+  isDeleted    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  songs PlaylistSong[]
+
+  @@index([name])
+  @@index([isPublic, isDeleted])
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String
+  songId     String
+  position   Int
+
+  addedAt DateTime @default(now())
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+  @@unique([playlistId, position])
+  @@index([playlistId])
+  @@index([songId])
+}
+
+model DriveCache {
+  id           String   @id @default(uuid())
+  folderId     String   @unique
+  filesJson    Json
+  lastSyncedAt DateTime @default(now())
+
+  @@index([lastSyncedAt])
+}
