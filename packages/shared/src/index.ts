@@ -1,6 +1,6 @@
-export * from './types/song';
-export * from './types/playlist';
-export * from './types/api';
+export * from './types/song.js';
+export * from './types/playlist.js';
+export * from './types/api.js';
 
 export const AUDIO_MIME_TYPES = [
   'audio/mpeg',

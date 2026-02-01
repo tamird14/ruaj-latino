@@ -15,7 +15,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface DriveFilesResponse {
-  files: import('./song').DriveFile[];
+  files: import('./song.js').DriveFile[];
   nextPageToken?: string;
 }
 

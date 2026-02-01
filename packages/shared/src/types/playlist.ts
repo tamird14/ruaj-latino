@@ -1,4 +1,4 @@
-import { Song } from './song';
+import { Song } from './song.js';
 
 export interface Playlist {
   id: string;
