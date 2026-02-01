@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = [
+  "cd packages/shared && npm run build",
+  "cd apps/api && npx prisma generate --schema=src/prisma/schema.prisma && npm run build"
+]
+
+[start]
+cmd = "cd apps/api && node dist/index.js"
