@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Shuffle, Trash2, Edit2, Lock, Globe, ArrowLeft } from 'lucide-react';
+import { Play, Shuffle, Trash2, Lock, Globe, ArrowLeft } from 'lucide-react';
 import { usePlaylistStore, useQueueStore, useUIStore } from '../store';
 import { FileCard } from '../components/browser/FileCard';
 import { Loading } from '../components/common/Loading';
@@ -11,7 +11,7 @@ export const PlaylistDetail = () => {
   const { currentPlaylist, isLoading, error, fetchPlaylist, deletePlaylist } = usePlaylistStore();
   const { setQueue } = useQueueStore();
   const { openPasswordModal, addToast } = useUIStore();
-  const [playlistPassword, setPlaylistPassword] = useState<string | undefined>();
+  const [_playlistPassword, setPlaylistPassword] = useState<string | undefined>();
 
   useEffect(() => {
     if (id) {

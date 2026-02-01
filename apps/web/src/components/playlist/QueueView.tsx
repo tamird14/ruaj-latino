@@ -9,14 +9,13 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Play, Pause, X } from 'lucide-react';
+import { GripVertical, Pause, X } from 'lucide-react';
 import { usePlayerStore, useQueueStore } from '../../store';
 import type { Song } from '@ruaj-latino/shared';
 import { formatDuration } from '../../utils/formatters';
@@ -136,7 +135,7 @@ const SortableSong = ({
 };
 
 export const QueueView = () => {
-  const { currentSong, isPlaying } = usePlayerStore();
+  const { isPlaying } = usePlayerStore();
   const { queue, currentIndex, reorderQueue, removeFromQueue, goToIndex } = useQueueStore();
 
   const sensors = useSensors(

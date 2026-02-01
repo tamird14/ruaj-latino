@@ -17,7 +17,6 @@ export const AudioPlayer = () => {
     setAudioRef,
     setCurrentTime,
     setDuration,
-    play,
   } = usePlayerStore();
   const { next } = useQueueStore();
   const { isPlayerExpanded, togglePlayerExpanded } = useUIStore();
