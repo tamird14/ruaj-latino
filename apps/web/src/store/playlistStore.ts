@@ -141,18 +141,19 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       await playlistService.reorderSongs(playlistId, songIds, password);
       // Optimistically update the order
       set((state) => {
-        if (state.currentPlaylist?.id === playlistId) {
-          const songMap = new Map(state.currentPlaylist.songs.map((s) => [s.song.id, s]));
+        const playlist = state.currentPlaylist;
+        if (playlist?.id === playlistId) {
+          const songMap = new Map(playlist.songs.map((s) => [s.song.id, s]));
           const reorderedSongs = songIds
             .map((id, index) => {
               const playlistSong = songMap.get(id);
               return playlistSong ? { ...playlistSong, position: index } : null;
             })
-            .filter(Boolean) as typeof state.currentPlaylist.songs;
+            .filter(Boolean) as typeof playlist.songs;
 
           return {
             currentPlaylist: {
-              ...state.currentPlaylist,
+              ...playlist,
               songs: reorderedSongs,
             },
             isLoading: false,
