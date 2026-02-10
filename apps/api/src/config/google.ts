@@ -14,8 +14,18 @@ export const getDriveClient = () => {
     throw new Error('Google Drive credentials not configured');
   }
 
-  // Replace escaped newlines with actual newlines
-  const privateKey = env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+  // Handle various newline escaping scenarios from environment variables
+  let privateKey = env.GOOGLE_PRIVATE_KEY;
+
+  // Handle double-escaped newlines (\\n -> \n)
+  privateKey = privateKey.replace(/\\\\n/g, '\n');
+  // Handle single-escaped newlines (\n as two chars -> actual newline)
+  privateKey = privateKey.replace(/\\n/g, '\n');
+
+  // Ensure proper PEM format
+  if (!privateKey.includes('-----BEGIN')) {
+    throw new Error('Invalid private key format - missing PEM header');
+  }
 
   const auth = new google.auth.GoogleAuth({
     credentials: {
