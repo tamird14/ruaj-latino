@@ -38,30 +38,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\/api\/drive\/files/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'drive-files-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60, // 1 hour
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/.*\/api\/playlists/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'playlists-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 5, // 5 minutes
-              },
-            },
-          },
-        ],
+        navigateFallbackDenylist: [/^\/api\//],
       },
     }),
   ],
