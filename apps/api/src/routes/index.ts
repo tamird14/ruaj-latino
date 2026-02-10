@@ -13,7 +13,7 @@ router.use('/songs', songRoutes);
 
 // Health check
 router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', version: '1.1.0', timestamp: new Date().toISOString() });
 });
 
 export default router;
