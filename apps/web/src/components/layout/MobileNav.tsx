@@ -10,8 +10,8 @@ const navItems = [
 
 export const MobileNav = () => {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark-900 border-t border-dark-800 safe-bottom z-40">
-      <div className="flex items-center justify-around py-2 pb-20">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark-900 border-t border-dark-800 z-40">
+      <div className="flex items-center justify-around py-2 safe-bottom" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 80px)' }}>
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}

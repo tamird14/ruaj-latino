@@ -23,6 +23,11 @@ export const CreatePlaylistModal = () => {
       return;
     }
 
+    if (password.trim() && password.trim().length < 4) {
+      setError('Password must be at least 4 characters');
+      return;
+    }
+
     try {
       await createPlaylist({
         name: name.trim(),
@@ -142,7 +147,7 @@ export const CreatePlaylistModal = () => {
             </button>
           </div>
           <p className="mt-1 text-xs text-gray-500">
-            If set, a password will be required to edit or delete this playlist
+            If set (min. 4 characters), a password will be required to edit or delete this playlist
           </p>
         </div>
 
