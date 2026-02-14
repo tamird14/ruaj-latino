@@ -89,7 +89,7 @@ export const FileCard = ({ file, showAddToQueue = true, playlistSongs, playlistI
   };
 
   return (
-    <div className="card-hover group flex items-center gap-4">
+    <div className="card-hover group flex items-center gap-2 md:gap-4">
       {/* Thumbnail */}
       <div className="w-12 h-12 bg-dark-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden relative">
         {thumbnail ? (

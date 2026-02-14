@@ -160,7 +160,7 @@ export const AudioPlayer = () => {
         )}
 
         {/* Compact view (desktop and collapsed mobile) */}
-        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-4 px-4 py-2.5 md:py-3 md:safe-bottom`}>
+        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-2 md:gap-4 px-3 md:px-4 py-2.5 md:py-3 md:safe-bottom`}>
           {/* Now Playing - left section */}
           <NowPlaying />
 
