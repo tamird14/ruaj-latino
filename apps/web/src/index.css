@@ -12,7 +12,7 @@
   }
 
   body {
-    @apply h-full bg-dark-950 text-gray-100 font-sans antialiased;
+    @apply h-full bg-dark-950 text-gray-100 font-sans antialiased overflow-x-hidden;
   }
 
   #root {

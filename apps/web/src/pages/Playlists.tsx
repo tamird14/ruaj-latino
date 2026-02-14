@@ -18,7 +18,7 @@ export const Playlists = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Playlists</h1>
           <p className="text-gray-400 text-sm mt-1">
@@ -26,7 +26,7 @@ export const Playlists = () => {
           </p>
         </div>
 
-        <button onClick={openCreatePlaylistModal} className="btn-primary">
+        <button onClick={openCreatePlaylistModal} className="btn-primary w-full sm:w-auto justify-center">
           <Plus className="w-4 h-4" />
           New Playlist
         </button>
@@ -54,7 +54,7 @@ export const Playlists = () => {
               <h2 className="text-lg font-semibold text-white mb-4">
                 Public Playlists
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {publicPlaylists.map((playlist) => (
                   <PlaylistCard key={playlist.id} playlist={playlist} />
                 ))}
@@ -68,7 +68,7 @@ export const Playlists = () => {
               <h2 className="text-lg font-semibold text-white mb-4">
                 Private Playlists
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {privatePlaylists.map((playlist) => (
                   <PlaylistCard key={playlist.id} playlist={playlist} />
                 ))}

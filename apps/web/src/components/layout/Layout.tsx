@@ -24,7 +24,7 @@ export const Layout = () => {
         <Sidebar />
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto pb-[calc(152px+env(safe-area-inset-bottom))] md:pb-24">
+        <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(152px+env(safe-area-inset-bottom))] md:pb-24">
           <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 safe-left safe-right">
             <Outlet />
           </div>

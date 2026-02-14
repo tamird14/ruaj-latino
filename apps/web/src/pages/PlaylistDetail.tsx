@@ -218,7 +218,7 @@ export const PlaylistDetail = () => {
   const songs = currentPlaylist.songs.map((ps) => ps.song);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
@@ -229,9 +229,9 @@ export const PlaylistDetail = () => {
       </button>
 
       {/* Header */}
-      <div className="card flex flex-col md:flex-row gap-6">
+      <div className="card flex flex-col md:flex-row gap-6 min-w-0 overflow-hidden">
         {/* Cover */}
-        <div className="w-48 h-48 bg-dark-800 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
+        <div className="w-full max-w-48 h-48 bg-dark-800 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
           {currentPlaylist.coverImageUrl ? (
             <img
               src={currentPlaylist.coverImageUrl}
@@ -244,8 +244,8 @@ export const PlaylistDetail = () => {
         </div>
 
         {/* Info */}
-        <div className="flex-1 flex flex-col justify-center">
-          <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400 mb-2 min-w-0">
             {currentPlaylist.isPublic ? (
               <>
                 <Globe className="w-4 h-4" />
@@ -264,10 +264,12 @@ export const PlaylistDetail = () => {
             )}
           </div>
 
-          <h1 className="text-3xl font-bold text-white mb-2">{currentPlaylist.name}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 break-words">
+            {currentPlaylist.name}
+          </h1>
 
           {currentPlaylist.description && (
-            <p className="text-gray-400 mb-4">{currentPlaylist.description}</p>
+            <p className="text-gray-400 mb-4 break-words">{currentPlaylist.description}</p>
           )}
 
           <p className="text-sm text-gray-500 mb-4">
@@ -275,10 +277,10 @@ export const PlaylistDetail = () => {
           </p>
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
             <button
               onClick={handlePlay}
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto justify-center"
               disabled={songs.length === 0}
             >
               <Play className="w-4 h-4" fill="currentColor" />
@@ -287,19 +289,19 @@ export const PlaylistDetail = () => {
 
             <button
               onClick={handleShuffle}
-              className="btn-secondary"
+              className="btn-secondary w-full sm:w-auto justify-center"
               disabled={songs.length === 0}
             >
               <Shuffle className="w-4 h-4" />
               Shuffle
             </button>
 
-            <button onClick={handleEditClick} className="btn-secondary">
+            <button onClick={handleEditClick} className="btn-secondary w-full sm:w-auto justify-center">
               <Pencil className="w-4 h-4" />
               Edit
             </button>
 
-            <button onClick={handleDelete} className="btn-ghost text-red-400 hover:text-red-300">
+            <button onClick={handleDelete} className="btn-ghost w-full sm:w-auto justify-center text-red-400 hover:text-red-300">
               <Trash2 className="w-4 h-4" />
               Delete
             </button>
