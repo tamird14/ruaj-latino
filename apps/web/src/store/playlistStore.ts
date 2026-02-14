@@ -12,7 +12,7 @@ interface PlaylistState {
   fetchPlaylists: () => Promise<void>;
   fetchPlaylist: (id: string, password?: string) => Promise<PlaylistWithSongs | undefined>;
   createPlaylist: (data: { name: string; description?: string; isPublic?: boolean; password?: string; songIds?: string[] }) => Promise<Playlist>;
-  updatePlaylist: (id: string, data: { name?: string; description?: string; isPublic?: boolean; password?: string }, password?: string) => Promise<void>;
+  updatePlaylist: (id: string, data: { name?: string; description?: string; isPublic?: boolean; password?: string; removePassword?: boolean }, password?: string) => Promise<void>;
   deletePlaylist: (id: string, password?: string) => Promise<void>;
   addSongsToPlaylist: (playlistId: string, songIds: string[], password?: string) => Promise<void>;
   removeSongFromPlaylist: (playlistId: string, songId: string, password?: string) => Promise<void>;

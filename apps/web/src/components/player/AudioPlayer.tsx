@@ -100,10 +100,10 @@ export const AudioPlayer = () => {
 
       {/* Player UI */}
       <div
-        className={`fixed left-0 right-0 bg-dark-900/95 backdrop-blur-lg border-t border-dark-800 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50 transition-all duration-300 ${
           isPlayerExpanded
-            ? 'bottom-0 h-screen md:h-auto md:bottom-2'
-            : 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-2'
+            ? 'bottom-0 h-screen md:h-auto md:bottom-0'
+            : 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-0'
         }`}
       >
         {/* Expand/collapse button - mobile only */}
