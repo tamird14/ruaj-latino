@@ -218,7 +218,7 @@ export const PlaylistDetail = () => {
   const songs = currentPlaylist.songs.map((ps) => ps.song);
 
   return (
-    <div className="space-y-6 min-w-0">
+    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
@@ -231,7 +231,7 @@ export const PlaylistDetail = () => {
       {/* Header */}
       <div className="card flex flex-col md:flex-row gap-6 min-w-0 overflow-hidden">
         {/* Cover */}
-        <div className="w-full max-w-48 h-48 bg-dark-800 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
+        <div className="w-full max-w-[12rem] h-48 bg-dark-800 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
           {currentPlaylist.coverImageUrl ? (
             <img
               src={currentPlaylist.coverImageUrl}
