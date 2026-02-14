@@ -1,3 +1,4 @@
+import type { SyntheticEvent } from 'react';
 import { usePlayerStore } from '../../store';
 import { formatTime } from '../../utils/formatters';
 
@@ -9,6 +10,10 @@ export const ProgressBar = ({ className = '' }: ProgressBarProps) => {
   const { currentTime, duration } = usePlayerStore();
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const blockProgressInteraction = (event: SyntheticEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
@@ -18,7 +23,12 @@ export const ProgressBar = ({ className = '' }: ProgressBarProps) => {
       </span>
 
       {/* Progress bar (display only) */}
-      <div className="flex-1 h-1 bg-dark-700 rounded-full relative pointer-events-none">
+      <div
+        className="flex-1 h-1 bg-dark-700 rounded-full relative cursor-default select-none"
+        onClick={blockProgressInteraction}
+        onMouseDown={blockProgressInteraction}
+        onTouchStart={blockProgressInteraction}
+      >
         {/* Filled progress */}
         <div
           className="h-full bg-primary-500 rounded-full"

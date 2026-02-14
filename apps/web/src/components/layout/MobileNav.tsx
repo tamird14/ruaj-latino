@@ -10,14 +10,14 @@ const navItems = [
 
 export const MobileNav = () => {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark-900 border-t border-dark-800 z-40">
-      <div className="flex items-center justify-around py-2 safe-bottom" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 80px)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark-900/95 backdrop-blur-lg border-t border-dark-800 z-40 pb-[max(env(safe-area-inset-bottom),8px)]">
+      <div className="grid grid-cols-4 items-center h-16 px-2">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
+              `flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-colors ${
                 isActive ? 'text-primary-400' : 'text-gray-500'
               }`
             }

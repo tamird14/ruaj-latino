@@ -101,9 +101,10 @@ export const AudioPlayer = () => {
       {/* Player UI */}
       <div
         className={`fixed left-0 right-0 bg-dark-900/95 backdrop-blur-lg border-t border-dark-800 z-50 transition-all duration-300 ${
-          isPlayerExpanded ? 'bottom-0 h-screen md:h-auto md:bottom-0' : 'md:bottom-0'
+          isPlayerExpanded
+            ? 'bottom-0 h-screen md:h-auto md:bottom-2'
+            : 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-2'
         }`}
-        style={!isPlayerExpanded ? { bottom: 'calc(56px + env(safe-area-inset-bottom))' } : undefined}
       >
         {/* Expand/collapse button - mobile only */}
         <button
@@ -159,7 +160,7 @@ export const AudioPlayer = () => {
         )}
 
         {/* Compact view (desktop and collapsed mobile) */}
-        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-4 px-4 py-3 md:safe-bottom`}>
+        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-4 px-4 py-2.5 md:py-3 md:safe-bottom`}>
           {/* Now Playing - left section */}
           <NowPlaying />
 
