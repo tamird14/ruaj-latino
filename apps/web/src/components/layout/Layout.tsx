@@ -25,7 +25,7 @@ export const Layout = () => {
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto pb-[calc(152px+env(safe-area-inset-bottom))] md:pb-24">
-          <div className="max-w-7xl mx-auto px-4 py-6 safe-left safe-right">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 safe-left safe-right">
             <Outlet />
           </div>
         </main>

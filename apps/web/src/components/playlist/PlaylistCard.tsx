@@ -42,31 +42,32 @@ export const PlaylistCard = ({ playlist }: PlaylistCardProps) => {
   return (
     <Link
       to={`/playlists/${playlist.id}`}
-      className="card-hover group relative"
+      className="card-hover group relative overflow-hidden p-3.5"
     >
       {/* Cover */}
-      <div className="aspect-square bg-dark-800 rounded-lg mb-3 flex items-center justify-center overflow-hidden relative">
+      <div className="aspect-square bg-dark-800/80 rounded-lg mb-3 flex items-center justify-center overflow-hidden relative ring-1 ring-dark-700/70">
         {playlist.coverImageUrl ? (
           <img
             src={playlist.coverImageUrl}
             alt={playlist.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <Music className="w-12 h-12 text-gray-600" />
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
         {/* Play button overlay */}
         <button
           onClick={handlePlay}
-          className="absolute bottom-2 right-2 w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-lg hover:scale-105"
+          className="absolute bottom-2 right-2 w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-lg shadow-primary-500/25 hover:scale-105"
         >
           <Play className="w-5 h-5 text-white" fill="white" />
         </button>
       </div>
 
       {/* Info */}
-      <h3 className="font-semibold text-white truncate group-hover:text-primary-400 transition-colors">
+      <h3 className="font-semibold text-white truncate group-hover:text-primary-300 transition-colors">
         {playlist.name}
       </h3>
       <div className="flex items-center gap-2 mt-1">
