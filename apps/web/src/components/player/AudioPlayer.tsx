@@ -109,7 +109,7 @@ export const AudioPlayer = () => {
         {/* Expand/collapse button - mobile only */}
         <button
           onClick={togglePlayerExpanded}
-          className="md:hidden absolute -top-10 left-1/2 -translate-x-1/2 w-10 h-10 bg-dark-800 rounded-full flex items-center justify-center text-gray-400"
+          className="md:hidden absolute -top-11 left-1/2 -translate-x-1/2 w-11 h-11 bg-dark-800 rounded-full flex items-center justify-center text-gray-400"
         >
           {isPlayerExpanded ? (
             <ChevronDown className="w-5 h-5" />

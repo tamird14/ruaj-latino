@@ -41,6 +41,23 @@ export const VolumeControl = () => {
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!e.touches[0]) return;
+    setIsDragging(true);
+    const newVolume = calculateVolume(e.touches[0].clientX);
+    setVolume(newVolume);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !e.touches[0]) return;
+    const newVolume = calculateVolume(e.touches[0].clientX);
+    setVolume(newVolume);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="flex items-center gap-2 group">
       {/* Mute button */}
@@ -55,19 +72,24 @@ export const VolumeControl = () => {
       {/* Volume slider */}
       <div
         ref={sliderRef}
-        className="w-24 h-1 bg-dark-700 rounded-full cursor-pointer relative"
+        className="w-24 h-4 bg-transparent rounded-full cursor-pointer relative touch-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-dark-700 rounded-full" />
         {/* Filled volume */}
         <div
-          className="h-full bg-gray-400 group-hover:bg-primary-500 rounded-full relative transition-colors"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gray-400 group-hover:bg-primary-500 rounded-full relative transition-colors"
           style={{ width: `${displayVolume * 100}%` }}
         >
           {/* Thumb */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-white rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg" />
         </div>
       </div>
     </div>

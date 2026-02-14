@@ -48,7 +48,7 @@ export const SearchBar = ({ compact = false, onSearch }: SearchBarProps) => {
     return (
       <button
         onClick={handleExpand}
-        className="p-2 text-gray-400 hover:text-gray-200 hover:bg-dark-800 rounded-lg transition-colors"
+        className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-dark-800 rounded-lg transition-colors"
       >
         <Search className="w-5 h-5" />
       </button>
@@ -71,7 +71,7 @@ export const SearchBar = ({ compact = false, onSearch }: SearchBarProps) => {
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-300"
+          className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-500 hover:text-gray-300"
         >
           <X className="w-4 h-4" />
         </button>

@@ -47,7 +47,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           <h2 className="text-lg font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-200 hover:bg-dark-800 rounded-lg transition-colors"
+            className="p-2 min-w-[44px] min-h-[44px] -m-1 flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-dark-800 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

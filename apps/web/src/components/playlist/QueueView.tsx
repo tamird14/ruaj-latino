@@ -68,7 +68,7 @@ const SortableSong = ({
       <button
         {...attributes}
         {...listeners}
-        className={`touch-none ${
+        className={`touch-none p-2 min-w-[44px] min-h-[44px] -m-2 flex items-center justify-center ${
           canReorder
             ? 'text-gray-500 hover:text-gray-300 cursor-grab'
             : 'text-gray-700 cursor-not-allowed'
@@ -120,7 +120,7 @@ const SortableSong = ({
       {/* Remove button */}
       <button
         onClick={onRemove}
-        className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${
+        className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity ${
           canReorder
             ? 'text-gray-400 hover:text-red-400 hover:bg-red-500/10'
             : 'text-gray-600 cursor-not-allowed'

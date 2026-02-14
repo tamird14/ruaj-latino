@@ -44,7 +44,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Shuffle */}
       <button
         onClick={toggleShuffle}
-        className={`btn-icon hidden md:flex ${
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} ${
           isShuffled ? 'text-primary-400' : 'text-gray-400 hover:text-gray-200'
         }`}
         title="Shuffle"
@@ -86,7 +86,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Repeat */}
       <button
         onClick={cycleRepeat}
-        className={`btn-icon hidden md:flex ${
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} ${
           repeatMode !== 'none' ? 'text-primary-400' : 'text-gray-400 hover:text-gray-200'
         }`}
         title={`Repeat: ${repeatMode}`}
@@ -106,7 +106,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Restart song */}
       <button
         onClick={restart}
-        className="btn-icon hidden md:flex text-gray-400 hover:text-gray-200"
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} text-gray-400 hover:text-gray-200`}
         title="Restart song"
       >
         <RotateCcw className={iconSizes[size]} />
@@ -115,7 +115,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Reset playlist */}
       <button
         onClick={resetPlaylist}
-        className="btn-icon hidden lg:flex text-gray-400 hover:text-gray-200"
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden lg:flex'} text-gray-400 hover:text-gray-200`}
         title="Reset playlist (start from beginning)"
       >
         <span className="text-xs font-bold">1</span>

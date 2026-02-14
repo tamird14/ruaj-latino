@@ -101,7 +101,7 @@ export const FileCard = ({ file, showAddToQueue = true, playlistSongs, playlistI
         {/* Play overlay */}
         <button
           onClick={handlePlay}
-          className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
         >
           <Play className="w-5 h-5 text-white" fill="white" />
         </button>
@@ -124,14 +124,14 @@ export const FileCard = ({ file, showAddToQueue = true, playlistSongs, playlistI
         <>
           <button
             onClick={handleAddToQueue}
-            className="p-2 text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
             title="Add to queue"
           >
             <Plus className="w-5 h-5" />
           </button>
           <button
             onClick={handleAddToPlaylist}
-            className="p-2 text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
             title="Add to playlist"
           >
             <ListPlus className="w-5 h-5" />
