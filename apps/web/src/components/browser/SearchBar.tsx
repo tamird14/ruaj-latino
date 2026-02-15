@@ -11,18 +11,22 @@ export const SearchBar = ({ compact = false, onSearch }: SearchBarProps) => {
   const [query, setQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(!compact);
   const inputRef = useRef<HTMLInputElement>(null);
+  const onSearchRef = useRef(onSearch);
   const navigate = useNavigate();
 
-  // Debounce search
+  // Keep ref in sync without resetting debounce
+  onSearchRef.current = onSearch;
+
+  // Debounce search - use ref so parent re-renders don't reset the timer
   useEffect(() => {
-    if (!onSearch) return;
+    if (!onSearchRef.current) return;
 
     const timer = setTimeout(() => {
-      onSearch(query);
+      onSearchRef.current?.(query);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, onSearch]);
+  }, [query]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

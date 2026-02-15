@@ -53,7 +53,7 @@ class DriveService {
     const response = await drive.files.list({
       q: query,
       fields: 'nextPageToken, files(id, name, mimeType, size, modifiedTime, thumbnailLink)',
-      pageSize: 100,
+      pageSize: 1000,
       pageToken,
       orderBy: 'name',
     });

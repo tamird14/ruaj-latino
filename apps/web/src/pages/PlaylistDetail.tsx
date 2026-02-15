@@ -1,20 +1,126 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Play, Shuffle, Trash2, Lock, Globe, ArrowLeft, Pencil, Eye, EyeOff } from 'lucide-react';
+import {
+  Play, Shuffle, Trash2, Lock, Globe, ArrowLeft, Pencil,
+  Eye, EyeOff, GripVertical, X, ArrowUpDown, Music,
+} from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { usePlaylistStore, useQueueStore, useUIStore } from '../store';
 import { FileCard } from '../components/browser/FileCard';
 import { Loading } from '../components/common/Loading';
 import { Modal } from '../components/common/Modal';
+import { formatDuration } from '../utils/formatters';
+import type { Song } from '@ruaj-latino/shared';
+
+// --- Sortable song row for reorder mode ---
+
+interface SortablePlaylistSongProps {
+  song: Song;
+  index: number;
+  onRemove: () => void;
+}
+
+const SortablePlaylistSong = ({ song, index, onRemove }: SortablePlaylistSongProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: song.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 px-4 py-3 rounded-lg group hover:bg-dark-800 card border border-dark-800/80"
+    >
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none p-2 min-w-[44px] min-h-[44px] -m-2 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-grab active:cursor-grabbing"
+      >
+        <GripVertical className="w-5 h-5" />
+      </button>
+
+      {/* Index */}
+      <div className="w-8 text-center">
+        <span className="text-sm text-gray-500">{index + 1}</span>
+      </div>
+
+      {/* Thumbnail */}
+      <div className="w-10 h-10 bg-dark-800 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+        {song.thumbnailUrl ? (
+          <img src={song.thumbnailUrl} alt={song.title || song.name} className="w-full h-full object-cover" />
+        ) : (
+          <Music className="w-4 h-4 text-gray-600" />
+        )}
+      </div>
+
+      {/* Song info */}
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-white truncate">
+          {song.title || song.name}
+        </p>
+        <p className="text-sm text-gray-400 truncate">
+          {song.artist || 'Unknown Artist'}
+        </p>
+      </div>
+
+      {/* Duration */}
+      {song.duration && (
+        <span className="text-sm text-gray-500 tabular-nums hidden sm:block">
+          {formatDuration(song.duration)}
+        </span>
+      )}
+
+      {/* Remove button */}
+      <button
+        onClick={onRemove}
+        className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+        title="Remove from playlist"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+};
+
+// --- Main component ---
 
 export const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currentPlaylist, isLoading, error, fetchPlaylist, deletePlaylist } = usePlaylistStore();
+  const { currentPlaylist, isLoading, error, fetchPlaylist, deletePlaylist, reorderSongs, removeSongFromPlaylist } = usePlaylistStore();
   const { setQueue } = useQueueStore();
   const { updatePlaylist } = usePlaylistStore();
   const { openPasswordModal, addToast } = useUIStore();
   const [playlistPassword, setPlaylistPassword] = useState<string | undefined>();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReorderMode, setIsReorderMode] = useState(false);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editIsPublic, setEditIsPublic] = useState(true);
@@ -23,16 +129,32 @@ export const PlaylistDetail = () => {
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [editError, setEditError] = useState('');
 
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   useEffect(() => {
     if (id) {
       fetchPlaylist(id);
     }
   }, [id, fetchPlaylist]);
 
+  const songs = useMemo(
+    () => currentPlaylist?.songs.map((ps) => ps.song) ?? [],
+    [currentPlaylist]
+  );
+
+  const songIds = useMemo(() => songs.map((s) => s.id), [songs]);
+
   const handlePlay = () => {
     if (!currentPlaylist) return;
 
-    const songs = currentPlaylist.songs.map((ps) => ps.song);
     if (songs.length === 0) {
       addToast('This playlist is empty', 'info');
       return;
@@ -44,13 +166,11 @@ export const PlaylistDetail = () => {
   const handleShuffle = () => {
     if (!currentPlaylist) return;
 
-    const songs = currentPlaylist.songs.map((ps) => ps.song);
     if (songs.length === 0) {
       addToast('This playlist is empty', 'info');
       return;
     }
 
-    // Shuffle the songs
     const shuffled = [...songs].sort(() => Math.random() - 0.5);
     setQueue(shuffled);
     addToast(`Shuffling: ${currentPlaylist.name}`, 'info');
@@ -73,6 +193,61 @@ export const PlaylistDetail = () => {
       openPasswordModal(id, 'delete', doDelete);
     } else if (confirm('Are you sure you want to delete this playlist?')) {
       doDelete();
+    }
+  };
+
+  const handleToggleReorderMode = () => {
+    if (!currentPlaylist || !id) return;
+
+    if (!isReorderMode && currentPlaylist.isProtected && !playlistPassword) {
+      openPasswordModal(id, 'edit', (password) => {
+        setPlaylistPassword(password);
+        setIsReorderMode(true);
+      });
+      return;
+    }
+    setIsReorderMode(!isReorderMode);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !id) return;
+
+    const oldIndex = songIds.indexOf(active.id as string);
+    const newIndex = songIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Build the new order
+    const newSongIds = [...songIds];
+    const [removed] = newSongIds.splice(oldIndex, 1);
+    newSongIds.splice(newIndex, 0, removed);
+
+    try {
+      await reorderSongs(id, newSongIds, playlistPassword);
+    } catch (err) {
+      addToast((err as Error).message, 'error');
+    }
+  };
+
+  const handleRemoveSong = async (songId: string) => {
+    if (!id) return;
+
+    const doRemove = async (password?: string) => {
+      try {
+        await removeSongFromPlaylist(id, songId, password);
+        addToast('Song removed from playlist', 'success');
+      } catch (err) {
+        addToast((err as Error).message, 'error');
+      }
+    };
+
+    if (currentPlaylist?.isProtected && !playlistPassword) {
+      openPasswordModal(id, 'edit', (password) => {
+        setPlaylistPassword(password);
+        doRemove(password);
+      });
+    } else {
+      doRemove(playlistPassword);
     }
   };
 
@@ -215,8 +390,6 @@ export const PlaylistDetail = () => {
     );
   }
 
-  const songs = currentPlaylist.songs.map((ps) => ps.song);
-
   return (
     <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
       {/* Back button */}
@@ -311,7 +484,20 @@ export const PlaylistDetail = () => {
 
       {/* Songs */}
       <section>
-        <h2 className="text-lg font-semibold text-white mb-4">Songs</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Songs</h2>
+          {songs.length > 1 && (
+            <button
+              onClick={handleToggleReorderMode}
+              className={`btn-secondary text-sm ${
+                isReorderMode ? 'bg-primary-500/20 border-primary-500/40 text-primary-400' : ''
+              }`}
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {isReorderMode ? 'Done' : 'Edit Order'}
+            </button>
+          )}
+        </div>
 
         {songs.length === 0 ? (
           <div className="card text-center py-8">
@@ -320,6 +506,25 @@ export const PlaylistDetail = () => {
               Browse music and add songs to this playlist
             </p>
           </div>
+        ) : isReorderMode ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={songIds} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {songs.map((song, index) => (
+                  <SortablePlaylistSong
+                    key={song.id}
+                    song={song}
+                    index={index}
+                    onRemove={() => handleRemoveSong(song.id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         ) : (
           <div className="grid gap-2">
             {songs.map((song, index) => (

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { RefreshCw, Music } from 'lucide-react';
+import { RefreshCw, Music, ChevronsDown } from 'lucide-react';
 import { driveService } from '../services/driveService';
 import { FileCard } from '../components/browser/FileCard';
 import { SearchBar } from '../components/browser/SearchBar';
@@ -15,16 +15,21 @@ export const Browse = () => {
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isLoadingAll, setIsLoadingAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [nextPageToken, setNextPageToken] = useState<string | undefined>();
   const { addToast } = useUIStore();
+
+  // Use a ref for nextPageToken so loadFiles doesn't need it as a dependency
+  const nextPageTokenRef = useRef(nextPageToken);
+  nextPageTokenRef.current = nextPageToken;
 
   const loadFiles = useCallback(async (search?: string, append = false) => {
     try {
       setIsLoading(!append);
       const response = await driveService.getFiles({
         search: search || undefined,
-        pageToken: append ? nextPageToken : undefined,
+        pageToken: append ? nextPageTokenRef.current : undefined,
       });
 
       if (append) {
@@ -38,16 +43,16 @@ export const Browse = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [nextPageToken, addToast]);
+  }, [addToast]);
 
   useEffect(() => {
     loadFiles(searchQuery);
-  }, [searchQuery]);
+  }, [searchQuery, loadFiles]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     setNextPageToken(undefined);
-  };
+  }, []);
 
   const handleSync = async () => {
     try {
@@ -65,6 +70,29 @@ export const Browse = () => {
   const handleLoadMore = () => {
     if (nextPageToken) {
       loadFiles(searchQuery, true);
+    }
+  };
+
+  const handleLoadAll = async () => {
+    if (!nextPageToken || isLoadingAll) return;
+
+    setIsLoadingAll(true);
+    try {
+      let token: string | undefined = nextPageTokenRef.current;
+      while (token) {
+        const response = await driveService.getFiles({
+          search: searchQuery || undefined,
+          pageToken: token,
+        });
+        setFiles((prev) => [...prev, ...response.files]);
+        token = response.nextPageToken;
+        nextPageTokenRef.current = token;
+        setNextPageToken(token);
+      }
+    } catch (error) {
+      addToast((error as Error).message, 'error');
+    } finally {
+      setIsLoadingAll(false);
     }
   };
 
@@ -106,11 +134,32 @@ export const Browse = () => {
             ))}
           </div>
 
-          {/* Load more */}
+          {/* Pagination */}
           {nextPageToken && (
-            <div className="text-center pt-4">
-              <button onClick={handleLoadMore} className="btn-secondary">
+            <div className="flex items-center justify-center gap-3 pt-4">
+              <button
+                onClick={handleLoadMore}
+                className="btn-secondary"
+                disabled={isLoadingAll}
+              >
                 Load more
+              </button>
+              <button
+                onClick={handleLoadAll}
+                className="btn-secondary"
+                disabled={isLoadingAll}
+              >
+                {isLoadingAll ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Loading all...
+                  </>
+                ) : (
+                  <>
+                    <ChevronsDown className="w-4 h-4" />
+                    Load all
+                  </>
+                )}
               </button>
             </div>
           )}
