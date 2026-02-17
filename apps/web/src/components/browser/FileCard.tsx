@@ -73,53 +73,102 @@ export const FileCard = ({ file, showAddToQueue = true, playlistSongs, playlistI
   };
 
   return (
-    <div className="card-hover group flex items-center gap-3 md:gap-4">
-      {/* Thumbnail with play overlay */}
-      <div className="w-11 h-11 md:w-12 md:h-12 bg-dark-800 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
-        {thumbnail ? (
-          <img src={thumbnail} alt={title || name} className="w-full h-full object-cover" />
-        ) : (
-          <Music className="w-5 h-5 text-gray-600" />
+    <div className="card-hover group">
+      {/* Desktop layout: single row with hover-reveal buttons */}
+      <div className="hidden md:flex items-center gap-4">
+        <div className="w-12 h-12 bg-dark-800 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+          {thumbnail ? (
+            <img src={thumbnail} alt={title || name} className="w-full h-full object-cover" />
+          ) : (
+            <Music className="w-5 h-5 text-gray-600" />
+          )}
+          <button
+            onClick={handlePlay}
+            className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Play className="w-5 h-5 text-white" fill="white" />
+          </button>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-white truncate group-hover:text-primary-400 transition-colors">
+            {title || name}
+          </p>
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            {artist && <span className="truncate">{artist}</span>}
+            {duration && <span className="flex-shrink-0">{formatDuration(duration)}</span>}
+            {!duration && size && <span className="flex-shrink-0">{formatFileSize(size)}</span>}
+          </div>
+        </div>
+        {showAddToQueue && (
+          <>
+            <button
+              onClick={handleAddToQueue}
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Add to queue"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+            <button
+              onClick={handleAddToPlaylist}
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 hover:bg-dark-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Add to playlist"
+            >
+              <ListPlus className="w-5 h-5" />
+            </button>
+          </>
         )}
-        <button
-          onClick={handlePlay}
-          className="absolute inset-0 bg-black/50 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 md:transition-opacity touch-manipulation"
-        >
-          <Play className="w-5 h-5 text-white" fill="white" />
-        </button>
       </div>
 
-      {/* Song info */}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm md:text-base text-white truncate group-hover:text-primary-400 transition-colors">
-          {title || name}
-        </p>
-        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
-          {artist && <span className="truncate">{artist}</span>}
-          {duration && <span className="flex-shrink-0">{formatDuration(duration)}</span>}
-          {!duration && size && <span className="flex-shrink-0">{formatFileSize(size)}</span>}
+      {/* Mobile layout: two rows - info on top, actions below */}
+      <div className="md:hidden">
+        {/* Row 1: thumbnail + song info */}
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 bg-dark-800 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+            {thumbnail ? (
+              <img src={thumbnail} alt={title || name} className="w-full h-full object-cover" />
+            ) : (
+              <Music className="w-5 h-5 text-gray-600" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-sm text-white truncate">
+              {title || name}
+            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              {artist && <span className="truncate">{artist}</span>}
+              {duration && <span className="flex-shrink-0">{formatDuration(duration)}</span>}
+              {!duration && size && <span className="flex-shrink-0">{formatFileSize(size)}</span>}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Action buttons - always visible on mobile, hover on desktop */}
-      {showAddToQueue && (
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <button
-            onClick={handleAddToQueue}
-            className="p-2 min-w-[40px] min-h-[40px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 active:text-primary-300 bg-dark-800/60 md:bg-transparent hover:bg-dark-700 active:bg-dark-600 rounded-lg md:opacity-0 md:group-hover:opacity-100 md:transition-opacity touch-manipulation"
-            title="Add to queue"
-          >
-            <Plus className="w-4 h-4 md:w-5 md:h-5" />
-          </button>
-          <button
-            onClick={handleAddToPlaylist}
-            className="p-2 min-w-[40px] min-h-[40px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center text-gray-400 hover:text-primary-400 active:text-primary-300 bg-dark-800/60 md:bg-transparent hover:bg-dark-700 active:bg-dark-600 rounded-lg md:opacity-0 md:group-hover:opacity-100 md:transition-opacity touch-manipulation"
-            title="Add to playlist"
-          >
-            <ListPlus className="w-4 h-4 md:w-5 md:h-5" />
-          </button>
-        </div>
-      )}
+        {/* Row 2: action buttons - clear, large tap targets */}
+        {showAddToQueue && (
+          <div className="flex items-center gap-2 mt-2 pl-14">
+            <button
+              onClick={handlePlay}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 bg-dark-800 hover:bg-dark-700 active:bg-dark-600 rounded-lg touch-manipulation transition-colors"
+            >
+              <Play className="w-3.5 h-3.5" fill="currentColor" />
+              Play
+            </button>
+            <button
+              onClick={handleAddToQueue}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 bg-dark-800 hover:bg-dark-700 active:bg-dark-600 rounded-lg touch-manipulation transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Queue
+            </button>
+            <button
+              onClick={handleAddToPlaylist}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 bg-dark-800 hover:bg-dark-700 active:bg-dark-600 rounded-lg touch-manipulation transition-colors"
+            >
+              <ListPlus className="w-3.5 h-3.5" />
+              Playlist
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
