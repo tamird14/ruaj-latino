@@ -103,27 +103,27 @@ export const AudioPlayer = () => {
         className={`fixed left-0 right-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50 transition-all duration-300 ${
           isPlayerExpanded
             ? 'bottom-0 h-screen md:h-auto md:bottom-0'
-            : 'bottom-[calc(72px+env(safe-area-inset-bottom))] md:bottom-0'
+            : 'bottom-[calc(62px+max(env(safe-area-inset-bottom),4px))] md:bottom-0'
         }`}
       >
-        {/* Expand/collapse button - mobile only */}
+        {/* Expand/collapse handle - mobile only */}
         <button
           onClick={togglePlayerExpanded}
-          className="md:hidden absolute -top-11 left-1/2 -translate-x-1/2 w-11 h-11 bg-dark-800 rounded-full flex items-center justify-center text-gray-400"
+          className="md:hidden absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-dark-800/90 backdrop-blur-sm rounded-t-xl flex items-center justify-center text-gray-400 active:text-gray-200 touch-manipulation border border-b-0 border-dark-700"
         >
           {isPlayerExpanded ? (
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-4 h-4" />
           ) : (
-            <ChevronUp className="w-5 h-5" />
+            <ChevronUp className="w-4 h-4" />
           )}
         </button>
 
         {/* Expanded mobile view */}
         {isPlayerExpanded && (
           <div className="md:hidden h-full flex flex-col p-6 safe-top safe-bottom">
-            {/* Album art placeholder */}
+            {/* Album art */}
             <div className="flex-1 flex items-center justify-center">
-              <div className="w-64 h-64 bg-dark-800 rounded-2xl flex items-center justify-center">
+              <div className="w-64 h-64 bg-dark-800 rounded-2xl flex items-center justify-center shadow-xl">
                 {currentSong.thumbnailUrl ? (
                   <img
                     src={currentSong.thumbnailUrl}
@@ -160,12 +160,12 @@ export const AudioPlayer = () => {
         )}
 
         {/* Compact view (desktop and collapsed mobile) */}
-        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-2 md:gap-4 px-3 md:px-4 py-2.5 md:py-3 md:safe-bottom`}>
+        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-2 md:gap-4 px-3 md:px-4 py-2 md:py-3 md:safe-bottom`}>
           {/* Now Playing - left section */}
           <NowPlaying />
 
           {/* Controls and Progress - center section */}
-          <div className="flex-1 flex flex-col items-center gap-2 max-w-2xl">
+          <div className="flex-1 flex flex-col items-center gap-1 md:gap-2 max-w-2xl">
             <PlayerControls />
             <ProgressBar className="w-full hidden md:flex" />
           </div>

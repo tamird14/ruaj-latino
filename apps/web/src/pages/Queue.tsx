@@ -16,21 +16,23 @@ export const Queue = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Queue</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            {queue.length} {queue.length === 1 ? 'song' : 'songs'}
-          </p>
+      <div className="flex flex-col gap-3 md:gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-white">Queue</h1>
+            <p className="text-gray-400 text-sm mt-0.5">
+              {queue.length} {queue.length === 1 ? 'song' : 'songs'}
+            </p>
+          </div>
         </div>
 
         {queue.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={openSaveQueueModal}
-              className="btn-primary"
+              className="btn-primary touch-manipulation"
               title="Save queue as playlist"
             >
               <ListPlus className="w-4 h-4" />
@@ -39,7 +41,7 @@ export const Queue = () => {
 
             <button
               onClick={toggleShuffle}
-              className={`btn-secondary ${isShuffled ? 'text-primary-400' : ''}`}
+              className={`btn-secondary touch-manipulation ${isShuffled ? 'text-primary-400' : ''}`}
               title={isShuffled ? 'Unshuffle' : 'Shuffle'}
             >
               <Shuffle className="w-4 h-4" />
@@ -50,7 +52,7 @@ export const Queue = () => {
 
             <button
               onClick={resetPlaylist}
-              className="btn-secondary"
+              className="btn-secondary touch-manipulation"
               title="Reset to beginning"
             >
               <RotateCcw className="w-4 h-4" />
@@ -59,7 +61,7 @@ export const Queue = () => {
 
             <button
               onClick={handleClear}
-              className="btn-secondary text-red-400 hover:text-red-300"
+              className="btn-secondary text-red-400 hover:text-red-300 touch-manipulation"
               title="Clear queue"
             >
               <Trash2 className="w-4 h-4" />

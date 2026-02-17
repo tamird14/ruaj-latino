@@ -4,10 +4,10 @@ import { SearchBar } from '../browser/SearchBar';
 
 export const Header = () => {
   return (
-    <header className="md:hidden bg-dark-900 border-b border-dark-800 px-4 py-3 safe-top">
-      <div className="flex items-center gap-4">
+    <header className="md:hidden bg-dark-900/95 backdrop-blur-lg border-b border-dark-800 px-3 py-2.5 safe-top">
+      <div className="flex items-center gap-3">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 touch-manipulation flex-shrink-0">
           <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
             <Music2 className="w-5 h-5 text-white" />
           </div>

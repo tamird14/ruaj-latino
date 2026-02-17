@@ -112,8 +112,8 @@ export const Home = () => {
         )}
       </section>
 
-      {/* Instructions */}
-      <section className="card bg-dark-900/65">
+      {/* Instructions - desktop only */}
+      <section className="hidden md:block card bg-dark-900/65">
         <h3 className="font-semibold text-white mb-3">Keyboard Shortcuts</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 text-sm">
           <div className="flex items-center gap-2 p-3 rounded-lg bg-dark-800/40 border border-dark-700/60">

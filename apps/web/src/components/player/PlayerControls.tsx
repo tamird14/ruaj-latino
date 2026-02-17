@@ -40,13 +40,13 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
   const RepeatIcon = repeatMode === 'one' ? Repeat1 : Repeat;
 
   return (
-    <div className="flex items-center gap-2 md:gap-4">
+    <div className="flex items-center gap-1 md:gap-4">
       {/* Shuffle */}
       <button
         onClick={toggleShuffle}
         className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} ${
           isShuffled ? 'text-primary-400' : 'text-gray-400 hover:text-gray-200'
-        }`}
+        } touch-manipulation`}
         title="Shuffle"
       >
         <Shuffle className={iconSizes[size]} />
@@ -55,7 +55,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Previous */}
       <button
         onClick={previous}
-        className="btn-icon text-gray-400 hover:text-gray-200"
+        className="btn-icon text-gray-400 hover:text-gray-200 active:text-white touch-manipulation"
         title="Previous (or restart if >3s)"
       >
         <SkipBack className={iconSizes[size]} />
@@ -64,7 +64,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Play/Pause */}
       <button
         onClick={togglePlay}
-        className={`${playButtonSizes[size]} rounded-full bg-white text-dark-950 hover:scale-105 transition-transform flex items-center justify-center`}
+        className={`${playButtonSizes[size]} rounded-full bg-white text-dark-950 hover:scale-105 active:scale-95 transition-transform flex items-center justify-center touch-manipulation`}
         title={isPlaying ? 'Pause' : 'Play'}
       >
         {isPlaying ? (
@@ -77,10 +77,19 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Next */}
       <button
         onClick={next}
-        className="btn-icon text-gray-400 hover:text-gray-200"
+        className="btn-icon text-gray-400 hover:text-gray-200 active:text-white touch-manipulation"
         title="Next"
       >
         <SkipForward className={iconSizes[size]} />
+      </button>
+
+      {/* Stop */}
+      <button
+        onClick={stop}
+        className="btn-icon text-gray-400 hover:text-gray-200 active:text-white touch-manipulation"
+        title="Stop"
+      >
+        <Square className={iconSizes[size]} fill="currentColor" />
       </button>
 
       {/* Repeat */}
@@ -88,25 +97,16 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
         onClick={cycleRepeat}
         className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} ${
           repeatMode !== 'none' ? 'text-primary-400' : 'text-gray-400 hover:text-gray-200'
-        }`}
+        } touch-manipulation`}
         title={`Repeat: ${repeatMode}`}
       >
         <RepeatIcon className={iconSizes[size]} />
       </button>
 
-      {/* Stop */}
-      <button
-        onClick={stop}
-        className="btn-icon text-gray-400 hover:text-gray-200"
-        title="Stop"
-      >
-        <Square className={iconSizes[size]} fill="currentColor" />
-      </button>
-
       {/* Restart song */}
       <button
         onClick={restart}
-        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} text-gray-400 hover:text-gray-200`}
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden md:flex'} text-gray-400 hover:text-gray-200 touch-manipulation`}
         title="Restart song"
       >
         <RotateCcw className={iconSizes[size]} />
@@ -115,7 +115,7 @@ export const PlayerControls = ({ size = 'medium' }: PlayerControlsProps) => {
       {/* Reset playlist */}
       <button
         onClick={resetPlaylist}
-        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden lg:flex'} text-gray-400 hover:text-gray-200`}
+        className={`btn-icon ${size === 'large' ? 'flex' : 'hidden lg:flex'} text-gray-400 hover:text-gray-200 touch-manipulation`}
         title="Reset playlist (start from beginning)"
       >
         <span className="text-xs font-bold">1</span>

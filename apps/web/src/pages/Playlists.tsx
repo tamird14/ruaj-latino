@@ -16,19 +16,20 @@ export const Playlists = () => {
   const privatePlaylists = playlists.filter((p) => !p.isPublic);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">Playlists</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-xl md:text-2xl font-bold text-white">Playlists</h1>
+          <p className="text-gray-400 text-sm mt-0.5">
             {playlists.length} playlists
           </p>
         </div>
 
-        <button onClick={openCreatePlaylistModal} className="btn-primary w-full sm:w-auto justify-center">
+        <button onClick={openCreatePlaylistModal} className="btn-primary flex-shrink-0 touch-manipulation">
           <Plus className="w-4 h-4" />
-          New Playlist
+          <span className="hidden sm:inline">New Playlist</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 

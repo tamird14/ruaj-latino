@@ -97,29 +97,29 @@ export const Browse = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Browse Music</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            {files.length} songs available
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="w-64">
-            <SearchBar onSearch={handleSearch} />
+      <div className="flex flex-col gap-3 md:gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-white">Browse Music</h1>
+            <p className="text-gray-400 text-sm mt-0.5">
+              {files.length} songs available
+            </p>
           </div>
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="btn-secondary"
+            className="btn-secondary flex-shrink-0"
             title="Sync with Google Drive"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Sync</span>
           </button>
+        </div>
+
+        <div className="w-full sm:max-w-xs">
+          <SearchBar onSearch={handleSearch} />
         </div>
       </div>
 
