@@ -262,15 +262,26 @@ class PlaylistService {
   async reorderSongs(playlistId: string, songIds: string[], password?: string): Promise<void> {
     await this.verifyPlaylistPassword(playlistId, password);
 
-    // Update positions based on new order
-    await prisma.$transaction(
-      songIds.map((songId, index) =>
-        prisma.playlistSong.updateMany({
-          where: { playlistId, songId },
-          data: { position: index },
-        })
-      )
-    );
+    // Use a two-phase approach to avoid violating the unique constraint
+    // on [playlistId, position]. First move all songs to temporary negative
+    // positions, then set the final positions.
+    await prisma.$transaction(async (tx) => {
+      // Phase 1: assign temporary negative positions to avoid unique conflicts
+      for (let i = 0; i < songIds.length; i++) {
+        await tx.playlistSong.updateMany({
+          where: { playlistId, songId: songIds[i] },
+          data: { position: -(i + 1) },
+        });
+      }
+
+      // Phase 2: assign the final positions
+      for (let i = 0; i < songIds.length; i++) {
+        await tx.playlistSong.updateMany({
+          where: { playlistId, songId: songIds[i] },
+          data: { position: i },
+        });
+      }
+    });
   }
 
   async verifyPassword(playlistId: string, password: string): Promise<boolean> {
