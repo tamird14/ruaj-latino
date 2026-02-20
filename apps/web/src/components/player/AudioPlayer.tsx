@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
-import { usePlayerStore, useQueueStore, useUIStore } from '../../store';
+import { usePlayerStore, useQueueStore } from '../../store';
 import { getStreamUrl } from '../../services/api';
 import { PlayerControls } from './PlayerControls';
 import { ProgressBar } from './ProgressBar';
@@ -17,9 +16,19 @@ export const AudioPlayer = () => {
     setAudioRef,
     setCurrentTime,
     setDuration,
+    play,
+    pause,
   } = usePlayerStore();
   const { next } = useQueueStore();
-  const { isPlayerExpanded, togglePlayerExpanded } = useUIStore();
+
+  // Track isPlaying via ref so event handlers always have latest value without re-mounting
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  // Track last loaded song to detect new song vs re-buffer
+  const lastLoadedSongIdRef = useRef<string | null>(null);
 
   // Set audio ref in store - must re-run when currentSong changes
   // because the audio element is only rendered when there's a currentSong
@@ -30,7 +39,7 @@ export const AudioPlayer = () => {
     return () => setAudioRef(null);
   }, [setAudioRef, currentSong]);
 
-  // Handle audio events
+  // Handle audio events - stable handlers that don't re-mount on isPlaying changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -39,29 +48,42 @@ export const AudioPlayer = () => {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
-      // Auto-play when new song loads and isPlaying is true
-      if (isPlaying) {
-        audio.play().catch(console.error);
+      // Only auto-play if this is a NEW song, not a re-buffer of the same song
+      const currentId = usePlayerStore.getState().currentSong?.id;
+      if (currentId && currentId !== lastLoadedSongIdRef.current) {
+        lastLoadedSongIdRef.current = currentId;
+        if (isPlayingRef.current) {
+          audio.play().catch(console.error);
+        }
       }
     };
-    const handleCanPlay = () => {
-      if (isPlaying) {
-        audio.play().catch(console.error);
+    // Sync browser/OS-initiated pause (e.g. iOS audio interruption) back to Zustand
+    const handlePause = () => {
+      if (isPlayingRef.current) {
+        pause();
+      }
+    };
+    // Sync browser/OS-initiated play back to Zustand
+    const handlePlay = () => {
+      if (!isPlayingRef.current) {
+        play();
       }
     };
 
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('play', handlePlay);
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('play', handlePlay);
     };
-  }, [next, setCurrentTime, setDuration, isPlaying]);
+  }, [next, setCurrentTime, setDuration, play, pause]);
 
   // Update volume
   useEffect(() => {
@@ -99,68 +121,9 @@ export const AudioPlayer = () => {
       />
 
       {/* Player UI */}
-      <div
-        className={`fixed left-0 right-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50 transition-all duration-300 ${
-          isPlayerExpanded
-            ? 'bottom-0 h-screen md:h-auto md:bottom-0'
-            : 'bottom-[calc(62px+max(env(safe-area-inset-bottom),4px))] md:bottom-0'
-        }`}
-      >
-        {/* Expand/collapse handle - mobile only */}
-        <button
-          onClick={togglePlayerExpanded}
-          className="md:hidden absolute -top-8 left-1/2 -translate-x-1/2 w-10 h-8 bg-dark-800/90 backdrop-blur-sm rounded-t-xl flex items-center justify-center text-gray-400 active:text-gray-200 touch-manipulation border border-b-0 border-dark-700"
-        >
-          {isPlayerExpanded ? (
-            <ChevronDown className="w-4 h-4" />
-          ) : (
-            <ChevronUp className="w-4 h-4" />
-          )}
-        </button>
-
-        {/* Expanded mobile view */}
-        {isPlayerExpanded && (
-          <div className="md:hidden h-full flex flex-col p-6 safe-top safe-bottom">
-            {/* Album art */}
-            <div className="flex-1 flex items-center justify-center">
-              <div className="w-64 h-64 bg-dark-800 rounded-2xl flex items-center justify-center shadow-xl">
-                {currentSong.thumbnailUrl ? (
-                  <img
-                    src={currentSong.thumbnailUrl}
-                    alt={currentSong.title || currentSong.name}
-                    className="w-full h-full object-cover rounded-2xl"
-                  />
-                ) : (
-                  <div className="text-6xl text-gray-600">🎵</div>
-                )}
-              </div>
-            </div>
-
-            {/* Song info */}
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-white truncate">
-                {currentSong.title || currentSong.name}
-              </h2>
-              <p className="text-gray-400 truncate">
-                {currentSong.artist || 'Unknown Artist'}
-              </p>
-            </div>
-
-            {/* Progress */}
-            <ProgressBar className="mb-6" />
-
-            {/* Controls */}
-            <PlayerControls size="large" />
-
-            {/* Volume */}
-            <div className="mt-6">
-              <VolumeControl />
-            </div>
-          </div>
-        )}
-
-        {/* Compact view (desktop and collapsed mobile) */}
-        <div className={`${isPlayerExpanded ? 'hidden md:flex' : 'flex'} items-center gap-2 md:gap-4 px-4 md:px-4 py-2 md:py-3 md:safe-bottom`}>
+      <div className="fixed left-0 right-0 bottom-[calc(62px+max(env(safe-area-inset-bottom),4px))] md:bottom-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50">
+        {/* Compact view */}
+        <div className="flex items-center gap-2 md:gap-4 px-4 md:px-4 py-2 md:py-3 md:safe-bottom">
           {/* Now Playing - left section */}
           <NowPlaying />
 

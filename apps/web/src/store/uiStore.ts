@@ -14,7 +14,6 @@ interface UIState {
   passwordModalCallback: ((password: string) => void) | null;
 
   isCreatePlaylistModalOpen: boolean;
-  isPlayerExpanded: boolean;
 
   // Add to Playlist modal
   isAddToPlaylistModalOpen: boolean;
@@ -31,8 +30,6 @@ interface UIState {
   closePasswordModal: () => void;
   openCreatePlaylistModal: () => void;
   closeCreatePlaylistModal: () => void;
-  togglePlayerExpanded: () => void;
-  setPlayerExpanded: (expanded: boolean) => void;
   addToast: (message: string, type: Toast['type']) => void;
   removeToast: (id: string) => void;
   openAddToPlaylistModal: (songIds: string[]) => void;
@@ -47,7 +44,6 @@ export const useUIStore = create<UIState>((set) => ({
   passwordModalAction: null,
   passwordModalCallback: null,
   isCreatePlaylistModalOpen: false,
-  isPlayerExpanded: false,
   isAddToPlaylistModalOpen: false,
   addToPlaylistSongIds: [],
   isSaveQueueModalOpen: false,
@@ -71,9 +67,6 @@ export const useUIStore = create<UIState>((set) => ({
 
   openCreatePlaylistModal: () => set({ isCreatePlaylistModalOpen: true }),
   closeCreatePlaylistModal: () => set({ isCreatePlaylistModalOpen: false }),
-
-  togglePlayerExpanded: () => set((state) => ({ isPlayerExpanded: !state.isPlayerExpanded })),
-  setPlayerExpanded: (expanded) => set({ isPlayerExpanded: expanded }),
 
   addToast: (message, type) => {
     const id = Date.now().toString();

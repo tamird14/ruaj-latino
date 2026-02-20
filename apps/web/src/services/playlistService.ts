@@ -3,7 +3,7 @@ import type { Playlist, PlaylistWithSongs, CreatePlaylistInput, UpdatePlaylistIn
 
 export const playlistService = {
   async getPlaylists(): Promise<Playlist[]> {
-    const response = await api.get<{ playlists: Playlist[] }>('/playlists');
+    const response = await api.get<{ playlists: Playlist[] }>('/playlists?includePrivate=true');
     return response.data.playlists;
   },
 
