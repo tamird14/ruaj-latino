@@ -41,6 +41,7 @@ coverage
 
 # Prisma
 apps/api/src/prisma/migrations/*_migration_lock.toml
+apps/api/src/prisma/dev.db
 
 # Misc
 *.tsbuildinfo

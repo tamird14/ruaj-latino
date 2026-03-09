@@ -6,19 +6,17 @@ const PORT = env.PORT;
 
 async function main() {
   try {
-    // Test database connection
     await prisma.$connect();
     console.log('Database connected');
-
-    // Start server
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Environment: ${env.NODE_ENV}`);
-    });
   } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+    console.warn('Database connection failed (non-fatal):', (error as Error).message);
+    console.warn('Routes requiring database will not work, but streaming will.');
   }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Environment: ${env.NODE_ENV}`);
+  });
 }
 
 // Graceful shutdown

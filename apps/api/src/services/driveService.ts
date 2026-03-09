@@ -1,8 +1,6 @@
 import { getDriveClient } from '../config/google.js';
 import { env } from '../config/env.js';
 import { prisma } from '../config/database.js';
-import type { GaxiosResponse } from 'gaxios';
-import type { Readable } from 'stream';
 
 const AUDIO_MIME_TYPES = [
   'audio/mpeg',
@@ -73,47 +71,6 @@ class DriveService {
     });
 
     return response.data as DriveFile;
-  }
-
-  async getFileStream(
-    fileId: string,
-    range?: string
-  ): Promise<{
-    stream: Readable;
-    metadata: DriveFile;
-    contentRange?: { start: number; end: number; size: number };
-  }> {
-    const drive = getDriveClient();
-
-    // Get file metadata first
-    const metadata = await this.getFile(fileId);
-    const fileSize = parseInt(metadata.size, 10);
-
-    // Parse range header if present
-    let start = 0;
-    let end = fileSize - 1;
-
-    if (range) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      start = parseInt(parts[0], 10);
-      end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-      // Ensure valid range
-      start = Math.max(0, start);
-      end = Math.min(fileSize - 1, end);
-    }
-
-    // Get the file stream
-    const response = (await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'stream' }
-    )) as GaxiosResponse<Readable>;
-
-    return {
-      stream: response.data,
-      metadata,
-      contentRange: range ? { start, end, size: fileSize } : undefined,
-    };
   }
 
   async syncFilesToDatabase(): Promise<number> {

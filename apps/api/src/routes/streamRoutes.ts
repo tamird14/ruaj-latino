@@ -1,49 +1,55 @@
 import { Router } from 'express';
-import { driveService } from '../services/driveService.js';
-import { AppError } from '../middleware/errorHandler.js';
+import { getAccessToken } from '../config/google.js';
 
 const router = Router();
 
-// GET /api/stream/:fileId - Stream audio file
 router.get('/:fileId', async (req, res, next) => {
   try {
     const { fileId } = req.params;
-    const range = req.headers.range;
+    const accessToken = await getAccessToken();
 
-    const { stream, metadata, contentRange } = await driveService.getFileStream(
-      fileId,
-      range as string | undefined
-    );
-
-    const fileSize = parseInt(metadata.size, 10);
-
-    // Set headers
-    const headers: Record<string, string | number> = {
-      'Content-Type': metadata.mimeType || 'audio/mpeg',
-      'Accept-Ranges': 'bytes',
-      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
     };
 
-    if (contentRange) {
-      const { start, end, size } = contentRange;
-      headers['Content-Range'] = `bytes ${start}-${end}/${size}`;
-      headers['Content-Length'] = end - start + 1;
-      res.writeHead(206, headers); // Partial Content
-    } else {
-      headers['Content-Length'] = fileSize;
-      res.writeHead(200, headers);
+    if (req.headers.range) {
+      headers['Range'] = req.headers.range;
     }
 
-    // Pipe stream to response
-    stream.pipe(res);
+    const driveResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      { headers }
+    );
 
-    stream.on('error', (error) => {
-      console.error('Stream error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Streaming failed' });
+    if (!driveResponse.ok && driveResponse.status !== 206) {
+      return res.status(driveResponse.status).json({ error: 'Failed to fetch audio' });
+    }
+
+    res.status(driveResponse.status);
+
+    const contentType = driveResponse.headers.get('content-type');
+    if (contentType) res.setHeader('Content-Type', contentType);
+    const contentLength = driveResponse.headers.get('content-length');
+    if (contentLength) res.setHeader('Content-Length', contentLength);
+    const contentRange = driveResponse.headers.get('content-range');
+    if (contentRange) res.setHeader('Content-Range', contentRange);
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+
+    if (!driveResponse.body) {
+      return res.status(500).json({ error: 'No response body' });
+    }
+
+    const reader = driveResponse.body.getReader();
+    const pump = async () => {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(value);
       }
-    });
-
+      res.end();
+    };
+    await pump();
   } catch (error) {
     next(error);
   }
