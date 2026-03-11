@@ -6,6 +6,25 @@ import { ProgressBar } from './ProgressBar';
 import { VolumeControl } from './VolumeControl';
 import { NowPlaying } from './NowPlaying';
 
+const playWithRetry = async (
+  audio: HTMLAudioElement,
+  maxAttempts = 3,
+  baseDelay = 100
+): Promise<boolean> => {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      await audio.play();
+      return true;
+    } catch (err) {
+      console.warn(`Play attempt ${attempt + 1} failed:`, err);
+      if (attempt < maxAttempts - 1) {
+        await new Promise((r) => setTimeout(r, baseDelay * (attempt + 1)));
+      }
+    }
+  }
+  return false;
+};
+
 export const AudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const {
@@ -29,6 +48,9 @@ export const AudioPlayer = () => {
 
   // Track last loaded song to detect new song vs re-buffer
   const lastLoadedSongIdRef = useRef<string | null>(null);
+  
+  // Track if we're waiting for audio to be ready to play
+  const pendingPlayRef = useRef(false);
 
   // Set audio ref in store - must re-run when currentSong changes
   // because the audio element is only rendered when there's a currentSong
@@ -46,17 +68,32 @@ export const AudioPlayer = () => {
 
     const handleEnded = () => next();
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
-      // Only auto-play if this is a NEW song, not a re-buffer of the same song
+      // Track that this is a new song
       const currentId = usePlayerStore.getState().currentSong?.id;
       if (currentId && currentId !== lastLoadedSongIdRef.current) {
         lastLoadedSongIdRef.current = currentId;
+        // Mark that we want to play when audio is ready
         if (isPlayingRef.current) {
-          audio.play().catch(console.error);
+          pendingPlayRef.current = true;
         }
       }
     };
+    
+    // canplay fires when enough data is buffered to start playback
+    // This is more reliable than loadedmetadata for mobile background playback
+    const handleCanPlay = async () => {
+      if (pendingPlayRef.current && isPlayingRef.current) {
+        pendingPlayRef.current = false;
+        const success = await playWithRetry(audio);
+        if (!success) {
+          console.error('Failed to play audio after retries');
+        }
+      }
+    };
+    
     // Sync browser/OS-initiated pause (e.g. iOS audio interruption) back to Zustand
     const handlePause = () => {
       if (isPlayingRef.current) {
@@ -73,6 +110,7 @@ export const AudioPlayer = () => {
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('play', handlePlay);
 
@@ -80,6 +118,7 @@ export const AudioPlayer = () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('play', handlePlay);
     };
@@ -99,11 +138,35 @@ export const AudioPlayer = () => {
     if (!audio || !currentSong) return;
 
     if (isPlaying) {
-      audio.play().catch(console.error);
+      // Only attempt play if audio is ready (has some data loaded)
+      if (audio.readyState >= 2) {
+        playWithRetry(audio);
+      } else {
+        // Audio not ready yet, mark as pending - canplay handler will trigger play
+        pendingPlayRef.current = true;
+      }
     } else {
       audio.pause();
     }
   }, [isPlaying, currentSong]);
+
+  // Handle visibility change - resume playback when app returns to foreground
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      
+      if (!document.hidden && isPlayingRef.current) {
+        // App came to foreground and should be playing
+        if (audio.paused) {
+          playWithRetry(audio);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const streamUrl = currentSong ? getStreamUrl(currentSong.driveFileId) : '';
 
@@ -117,7 +180,7 @@ export const AudioPlayer = () => {
       <audio
         ref={audioRef}
         src={streamUrl}
-        preload="metadata"
+        preload="auto"
       />
 
       {/* Player UI */}
