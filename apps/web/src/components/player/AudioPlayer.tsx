@@ -52,22 +52,32 @@ export const AudioPlayer = () => {
   // Track if we're waiting for audio to be ready to play
   const pendingPlayRef = useRef(false);
 
-  // Set audio ref in store - must re-run when currentSong changes
-  // because the audio element is only rendered when there's a currentSong
+  // Set audio ref in store - runs once when component mounts
+  // Audio element is now always in DOM (persistent), so no need to depend on currentSong
   useEffect(() => {
-    if (currentSong && audioRef.current) {
+    if (audioRef.current) {
       setAudioRef(audioRef.current);
     }
     return () => setAudioRef(null);
-  }, [setAudioRef, currentSong]);
+  }, [setAudioRef]);
 
   // Handle audio events - stable handlers that don't re-mount on isPlaying changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleEnded = () => next();
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleEnded = () => {
+      // Guard: only advance if there's a current song
+      if (usePlayerStore.getState().currentSong) {
+        next();
+      }
+    };
+    const handleTimeUpdate = () => {
+      // Only update time if there's a song playing
+      if (usePlayerStore.getState().currentSong) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
     
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
@@ -168,40 +178,44 @@ export const AudioPlayer = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  const streamUrl = currentSong ? getStreamUrl(currentSong.driveFileId) : '';
-
-  if (!currentSong) {
-    return null;
-  }
+  // Use undefined instead of empty string to avoid browser loading current page as audio
+  const streamUrl = currentSong ? getStreamUrl(currentSong.driveFileId) : undefined;
 
   return (
     <>
-      {/* Hidden audio element */}
+      {/* 
+        CRITICAL: Audio element must ALWAYS be in DOM (never unmount).
+        Mobile browsers grant autoplay permission to specific elements.
+        Unmounting resets the "playback context" and blocks autoplay.
+      */}
       <audio
         ref={audioRef}
         src={streamUrl}
         preload="auto"
+        playsInline
       />
 
-      {/* Player UI */}
-      <div className="fixed left-0 right-0 bottom-[calc(62px+max(env(safe-area-inset-bottom),4px))] md:bottom-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50">
-        {/* Compact view */}
-        <div className="flex items-center gap-2 md:gap-4 px-4 md:px-4 py-2 md:py-3 md:safe-bottom">
-          {/* Now Playing - left section */}
-          <NowPlaying />
+      {/* Player UI - only show when there's a song */}
+      {currentSong && (
+        <div className="fixed left-0 right-0 bottom-[calc(62px+max(env(safe-area-inset-bottom),4px))] md:bottom-0 bg-dark-900/95 backdrop-blur-lg md:bg-dark-900 md:backdrop-blur-none md:shadow-[0_-14px_30px_rgba(0,0,0,0.45)] border-t border-dark-800 z-50">
+          {/* Compact view */}
+          <div className="flex items-center gap-2 md:gap-4 px-4 md:px-4 py-2 md:py-3 md:safe-bottom">
+            {/* Now Playing - left section */}
+            <NowPlaying />
 
-          {/* Controls and Progress - center section */}
-          <div className="flex-1 flex flex-col items-center gap-1 md:gap-2 max-w-2xl">
-            <PlayerControls />
-            <ProgressBar className="w-full hidden md:flex" />
-          </div>
+            {/* Controls and Progress - center section */}
+            <div className="flex-1 flex flex-col items-center gap-1 md:gap-2 max-w-2xl">
+              <PlayerControls />
+              <ProgressBar className="w-full hidden md:flex" />
+            </div>
 
-          {/* Volume - right section (desktop only) */}
-          <div className="hidden md:block w-36">
-            <VolumeControl />
+            {/* Volume - right section (desktop only) */}
+            <div className="hidden md:block w-36">
+              <VolumeControl />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
